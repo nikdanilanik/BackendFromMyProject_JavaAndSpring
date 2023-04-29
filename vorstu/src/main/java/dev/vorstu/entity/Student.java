@@ -1,12 +1,12 @@
-package dev.vorstu.dto;
+package dev.vorstu.entity;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name="students")
 public class Student {
-    public Student() {
-    }
+
+    public Student() { }
 
     public Student(Long id, String fio, String group, String phoneNumber) {
         this(fio, group, phoneNumber);

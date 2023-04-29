@@ -11,7 +11,7 @@ public class VorstuApplication {
 
 	@Autowired
 	public void setInitialLoader(Initializer initiator) {
-        VorstuApplication.initializer = initiator;
+		VorstuApplication.initializer = initiator;
 	}
 
 	public static void main(String[] args) {
