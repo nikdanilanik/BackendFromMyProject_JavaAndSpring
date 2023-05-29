@@ -4,6 +4,10 @@ import dev.vorstu.entity.Student;
 import dev.vorstu.repositories.CustomerRepository.Initializer;
 import dev.vorstu.repositories.CustomerRepository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +27,19 @@ public class BaseController {
 
     // Get all students
     @GetMapping("students")
+    public Page<Student> getAllStudent(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id,asc") String[] sort,
+            @RequestParam(defaultValue = "") String filter) {
+        Sort.Direction direction = Sort.Direction.fromString(sort[1]);
+        Pageable pageable = PageRequest.of(page, size, direction, sort[0]);
+        if (filter != null && !filter.trim().isEmpty()) {
+            return studentRepository.findByFioContainingIgnoreCase(filter, pageable);
+        } else {
+            return studentRepository.findAll(pageable);
+        }
+    }
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }
@@ -31,7 +48,7 @@ public class BaseController {
     private Initializer initializer;
 
     // Add student
-    @PostMapping(value = "students", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "students/add", produces = MediaType.APPLICATION_JSON_VALUE)
     public Student createStudent(@RequestBody Student newStudent) { return addStudent(newStudent);}
     private Student addStudent(Student student) {
         student.setId(generateId());
@@ -56,7 +73,7 @@ public class BaseController {
                 .orElseThrow(() -> new RuntimeException("student with id: " + id + " was not found"));
     }
 
-    @PutMapping(value = "students", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "students/update", produces = MediaType.APPLICATION_JSON_VALUE)
     public Student changeStudent(@RequestBody Student changingStudent) {
         return updateStudent(changingStudent);
     }

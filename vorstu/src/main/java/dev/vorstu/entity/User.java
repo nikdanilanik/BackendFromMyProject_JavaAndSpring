@@ -22,6 +22,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private Long studentId;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "passwords_id", nullable = false)
     private Password password;

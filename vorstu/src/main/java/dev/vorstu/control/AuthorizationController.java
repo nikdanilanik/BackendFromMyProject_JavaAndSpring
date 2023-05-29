@@ -2,6 +2,9 @@ package dev.vorstu.control;
 
 import dev.vorstu.repositories.CustomerRepository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -14,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @RestController
@@ -21,12 +26,25 @@ import java.security.Principal;
 @Slf4j
 public class AuthorizationController {
     UserRepository userRepository;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+    
+    
     @PostMapping(value = "/login")
     public Principal apiLogin(Principal user) {
         log.info("Login user");
         UsernamePasswordAuthenticationToken token = ((UsernamePasswordAuthenticationToken) user);
         log.info("Hell {} with role {}", token.getName(), token.getAuthorities());
-        return user;
+
+        // Это бы как-то переписать по-человечески :с
+        String username = token.getName();
+        String studentIdQuery = "SELECT student_id FROM users WHERE username = ?";
+        Long studentId = jdbcTemplate.queryForObject(studentIdQuery, new Object[] { username }, Long.class);
+        Map<String, Object> details = new HashMap<String, Object>();
+        details.put("student_id", studentId);
+        ((AbstractAuthenticationToken) token).setDetails(details);
+        return token;
+        //jdbc Репозиторий сделать
     }
 
     @PostMapping(path = "/logout", consumes = "application/json", produces = "application/json")

@@ -8,14 +8,16 @@ public class Student {
 
     public Student() { }
 
-    public Student(Long id, String fio, String group, String phoneNumber) {
-        this(fio, group, phoneNumber);
+    public Student(Long id, String fio, String group, String curator, String phoneNumber, String phoneNumberOfParents) {
+        this(fio, group, curator, phoneNumber, phoneNumberOfParents);
         this.id = id;
     }
-    public Student(String fio, String group, String phoneNumber) {
+    public Student(String fio, String group, String curator, String phoneNumber, String phoneNumberOfParents) {
         this.fio = fio;
         this.group = group;
+        this.curator = curator;
         this.phoneNumber = phoneNumber;
+        this.phoneNumberOfParents = phoneNumberOfParents;
     }
 
     @Id
@@ -26,8 +28,12 @@ public class Student {
     private String fio;
     @Column(name = "group_of_students")
     private String group;
+    @Column(name = "curator_of_student")
+    private String curator;
     @Column(name = "phoneNumber")
     private String phoneNumber;
+    @Column(name = "phoneNumberOfParents")
+    private String phoneNumberOfParents;
 
     public Long getId() { return id; }
     public void setId(Long id) {this.id = id;}
@@ -46,11 +52,17 @@ public class Student {
         this.group = group;
     }
 
+    public  String getCurator() { return  curator; }
+    public void setCurator(String curator) { this.curator = curator; }
+
     public String getPhoneNumber() {
         return phoneNumber;
     }
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
+    public  String getPhoneNumberOfParents() { return phoneNumberOfParents; }
+    public void setPhoneNumberOfParents(String phoneNumberOfParents) { this.phoneNumberOfParents = phoneNumberOfParents; }
 
 }

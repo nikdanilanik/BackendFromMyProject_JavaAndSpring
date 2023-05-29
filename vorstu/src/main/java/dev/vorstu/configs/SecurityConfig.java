@@ -27,7 +27,9 @@ public class SecurityConfig {
         http
                 .authorizeRequests()
                 .antMatchers("/api/login/**").permitAll()
-                .antMatchers("/api/base/students/**").hasAuthority(Role.STUDENT.name())
+                .antMatchers("/api/base/students").hasAnyAuthority(Role.STUDENT.name(),Role.ADMIN.name(),Role.TEACHER.name())
+                .antMatchers("/api/base/students/{id}").hasAnyAuthority(Role.STUDENT.name(),Role.TEACHER.name())
+                .antMatchers("/api/base/students/**").hasAnyAuthority(Role.ADMIN.name())
                 .anyRequest()
                 .authenticated()
             .and()
@@ -55,6 +57,7 @@ public class SecurityConfig {
                                 + "from users as u "
                                 + "inner join passwords as p on u.passwords_id = p.id "
                                 + "where username=?")
-                .authoritiesByUsernameQuery("select username, role from users where username=?");
+                .authoritiesByUsernameQuery("select username, role, student_id from users where username=?");
+
     }
 }
