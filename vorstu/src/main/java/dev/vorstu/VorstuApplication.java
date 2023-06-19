@@ -1,6 +1,6 @@
 package dev.vorstu;
 
-import dev.vorstu.repositories.CustomerRepository.Initializer;
+import dev.vorstu.repositories.Initializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

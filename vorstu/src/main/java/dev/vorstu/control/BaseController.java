@@ -1,8 +1,10 @@
 package dev.vorstu.control;
 
+import dev.vorstu.entity.Group;
 import dev.vorstu.entity.Student;
-import dev.vorstu.repositories.CustomerRepository.Initializer;
-import dev.vorstu.repositories.CustomerRepository.StudentRepository;
+import dev.vorstu.repositories.GroupRepository;
+import dev.vorstu.repositories.Initializer;
+import dev.vorstu.repositories.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,11 +23,9 @@ public class BaseController {
 
     private Long counter = 0L;
     private Long generateId() { return counter++; }
-
     @Autowired
     private StudentRepository studentRepository;
 
-    // Get all students
     @GetMapping("students")
     public Page<Student> getAllStudent(
             @RequestParam(defaultValue = "0") int page,
@@ -44,6 +44,21 @@ public class BaseController {
         return studentRepository.findAll();
     }
 
+
+    @Autowired
+    private GroupRepository groupRepository;
+    public List<Group> getAllGroups() {
+        return groupRepository.findAll();
+    }
+    @GetMapping(value = "groups/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Group getGroupbyId(@PathVariable("id") Long id) {
+        return getAllGroups().stream()
+                .filter(el -> el.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("group with id: " + id + " was not found"));
+    }
+
+
     @Autowired
     private Initializer initializer;
 
@@ -60,10 +75,21 @@ public class BaseController {
     public Long deleteStudent(@PathVariable("id") Long id) {
         return removeStudent(id);
     }
+
     private Long removeStudent(Long id) {
         studentRepository.deleteById(id);
         return id;
     }
+
+    @GetMapping(value = "students/fio/{fio}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Student getStudentByFio(@PathVariable("fio") String fio) {
+        return studentRepository.findByFio(fio);
+    }
+
+//    @GetMapping(value = "students/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public Student getStudentById(@PathVariable("id") Long id) {
+//        return studentRepository.findAllById(1);
+//    }
 
     @GetMapping(value = "students/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Student getStudentbyId(@PathVariable("id") Long id) {
@@ -89,8 +115,28 @@ public class BaseController {
                 .orElseThrow(() -> new RuntimeException("student with id: " + student.getId() + "was not found"));
 
         changingStudent.setFio(student.getFio());
-        changingStudent.setGroup(student.getGroup());
         changingStudent.setPhoneNumber(student.getPhoneNumber());
+        changingStudent.setPhoneNumberOfParents(student.getPhoneNumberOfParents());
+        changingStudent.setGroup(student.getGroup());
+        return studentRepository.save(changingStudent);
+    }
+
+    @PutMapping(value = "students/updateForStudents", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Student changeStudentForStudent(@RequestBody Student changingStudent) {
+        return updateStudentForStudents(changingStudent);
+    }
+    private Student updateStudentForStudents(Student student) {
+        if(student.getId() == null) {
+            throw new RuntimeException("id of changing student cannot be null");
+        }
+
+        Student changingStudent = getAllStudents().stream()
+                .filter(el -> Objects.equals(el.getId(), student.getId()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("student with id: " + student.getId() + "was not found"));
+
+        changingStudent.setPhoneNumber(student.getPhoneNumber());
+        changingStudent.setPhoneNumberOfParents(student.getPhoneNumberOfParents());
         return studentRepository.save(changingStudent);
     }
 

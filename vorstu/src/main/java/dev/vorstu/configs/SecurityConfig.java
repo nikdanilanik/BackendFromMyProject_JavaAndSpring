@@ -4,6 +4,7 @@ import dev.vorstu.entity.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,9 +28,19 @@ public class SecurityConfig {
         http
                 .authorizeRequests()
                 .antMatchers("/api/login/**").permitAll()
-                .antMatchers("/api/base/students").hasAnyAuthority(Role.STUDENT.name(),Role.ADMIN.name(),Role.TEACHER.name())
-                .antMatchers("/api/base/students/{id}").hasAnyAuthority(Role.STUDENT.name(),Role.TEACHER.name())
-                .antMatchers("/api/base/students/**").hasAnyAuthority(Role.ADMIN.name())
+
+                .antMatchers(HttpMethod.PUT,"/api/base/students/updateForStudents").hasAnyAuthority(Role.STUDENT.name(),Role.ADMIN.name())
+
+                // По хорошему, нужно было сделать так:
+                // .antMatchers(HttpMethod.GET, "/api/base/students/getData").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/base/students").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/base/students/{id}").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/base/students/{fio}").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/base/groups/{id}").authenticated()
+
+                .antMatchers("/api/base/students/**").hasAuthority(Role.ADMIN.name())
+//                .antMatchers("/api/base/students/fio/**").permitAll()
+
                 .anyRequest()
                 .authenticated()
             .and()
